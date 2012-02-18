@@ -23,10 +23,14 @@ import lettuce
 
 
 def main(args=sys.argv[1:]):
-    base_path = os.path.join(os.path.dirname(os.curdir), 'features')
     parser = optparse.OptionParser(
-        usage="%prog or type %prog -h (--help) for help",
+        usage="%prog [OPTION] [features ...] or type %prog -h (--help) for help",
         version=lettuce.version)
+
+    parser.add_option("-b", "--base_path",
+                      dest="base_path",
+                      default="features",
+                      help='The base path where to find the lettuce files')
 
     parser.add_option("-v", "--verbosity",
                       dest="verbosity",
@@ -52,8 +56,9 @@ def main(args=sys.argv[1:]):
                       'lettucetests.xml')
 
     options, args = parser.parse_args()
+    feature_files = None
     if args:
-        base_path = os.path.abspath(args[0])
+        feature_files = [os.path.abspath(f) for f in args]
 
     try:
         options.verbosity = int(options.verbosity)
@@ -61,15 +66,19 @@ def main(args=sys.argv[1:]):
         pass
 
     runner = lettuce.Runner(
-        base_path,
+        feature_files,
+        base_path=os.path.abspath(options.base_path),
         scenarios=options.scenarios,
         verbosity=options.verbosity,
         enable_xunit=options.enable_xunit,
         xunit_filename=options.xunit_file,
     )
 
-    result = runner.run()
-    if not result or result.steps != result.steps_passed:
+    if not runner.initError:
+        result = runner.run()
+        if not result or result.steps != result.steps_passed:
+            raise SystemExit(1)
+    else:
         raise SystemExit(1)
 
 if __name__ == '__main__':

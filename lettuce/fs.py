@@ -24,7 +24,7 @@ import zipfile
 
 from glob import glob
 from os.path import abspath, join, dirname, curdir, exists
-
+from lettuce.exceptions import StepLoadingError, FeatureLoadingError
 
 class FeatureLoader(object):
     """Loader class responsible for findind features and step
@@ -51,8 +51,22 @@ class FeatureLoader(object):
             reload(module)  # always take fresh meat :)
             sys.path.remove(root)
 
-    def find_feature_files(self):
-        paths = FileSystem.locate(self.base_dir, "*.feature")
+    def load_feature_files(self, paths):
+        feature_files = []
+        if paths:
+            for f in paths:
+                if os.path.isfile(f) and os.path.exists(f):
+                    feature_files.append(f)
+                elif os.path.isdir(f) and os.path.exists(f):
+                    feature_files.extend(self.find_feature_files(f))
+                else:
+                    raise FeatureLoadingError( f )
+        return feature_files
+
+    def find_feature_files(self, path=None):
+        if not path:
+            path = self.base_dir
+        paths = FileSystem.locate(path, "*.feature")
         return paths
 
 
@@ -180,17 +194,19 @@ class FileSystem(object):
         return os.walk(path)
 
     @classmethod
-    def locate(cls, path, match, recursive=True):
+    def locate(cls, path, match, recursive=True, sort=True):
         """Locate files recursively in a given path"""
         root_path = cls.abspath(path)
+        return_files = []
         if recursive:
-            return_files = []
             for path, dirs, files in cls.walk(root_path):
                 for filename in fnmatch.filter(files, match):
                     return_files.append(cls.join(path, filename))
-            return return_files
         else:
-            return glob(cls.join(root_path, match))
+            return_files = glob(cls.join(root_path, match))
+        if sort:
+          return_files.sort( )
+        return return_files
 
     @classmethod
     def extract_zip(cls, filename, base_path='.', verbose=False):
