@@ -34,7 +34,7 @@ from lettuce.decorators import step
 from lettuce.registry import call_hook
 from lettuce.registry import STEP_REGISTRY
 from lettuce.registry import CALLBACK_REGISTRY
-from lettuce.exceptions import StepLoadingError
+from lettuce.exceptions import StepLoadingError, FeatureLoadingError
 from lettuce.plugins import xunit_output
 
 from lettuce import exceptions
@@ -69,19 +69,29 @@ class Runner(object):
     Takes a base path as parameter (string), so that it can look for
     features and step definitions on there.
     """
-    def __init__(self, base_path, scenarios=None, verbosity=0,
+    def __init__(self, feature_files=None, base_path=None, scenarios=None, verbosity=0,
                  enable_xunit=False, xunit_filename=None):
         """ lettuce.Runner will try to find a terrain.py file and
         import it from within `base_path`
         """
 
-        self.single_feature = None
-        if os.path.isfile(base_path) and os.path.exists(base_path):
-            self.single_feature = base_path
-            base_path = os.path.dirname(base_path)
+        self.initError = None
+
+        if not os.path.isdir(base_path) or not os.path.exists(base_path):
+            print "\033[1;31mOops!\n\033[1;37mCould not find base path at \033[1;33m%s\033[0m"%( base_path )
+            self.initError = True
+            return
 
         sys.path.insert(0, base_path)
         self.loader = fs.FeatureLoader(base_path)
+
+        try:
+            self.feature_files = self.loader.load_feature_files(feature_files)
+        except FeatureLoadingError, e:
+            print e
+            self.initError = True
+            return
+
         self.verbosity = verbosity
         self.scenarios = scenarios and map(int, scenarios.split(",")) or None
 
@@ -119,18 +129,17 @@ class Runner(object):
         call_hook('before', 'all')
 
         results = []
-        if self.single_feature:
-            features_files = [self.single_feature]
-        else:
-            features_files = self.loader.find_feature_files()
 
-        if not features_files:
+        if len(self.feature_files) == 0:
+            self.feature_files = self.loader.find_feature_files()
+
+        if not self.feature_files:
             self.output.print_no_features_found(self.loader.base_dir)
             return
 
         failed = False
         try:
-            for filename in features_files:
+            for filename in self.feature_files:
                 feature = Feature.from_file(filename)
                 results.append(
                     feature.run(self.scenarios))

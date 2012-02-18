@@ -50,3 +50,12 @@ class LettuceSyntaxError(SyntaxError):
 class StepLoadingError(Exception):
     """Raised when a step cannot be loaded."""
     pass
+
+class FeatureLoadingError(Exception):
+    """Raised when a feature cannot be loaded."""
+    def __init__(self, filename):
+        self.filename = filename
+        self.msg      = "\033[1;31mOops!\n\033[1;37mCould not find feature file(s) at \033[1;33m%s\033[0m"%( filename )
+
+    def __str__(self):
+        return self.msg
