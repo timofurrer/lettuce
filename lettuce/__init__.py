@@ -69,17 +69,19 @@ class Runner(object):
     Takes a base path as parameter (string), so that it can look for
     features and step definitions on there.
     """
-    def __init__(self, feature_files=None, base_path=None, scenarios=None, verbosity=0,
+    def __init__(self, base_path=None, feature_files=None, scenarios=None, verbosity=0,
                  enable_xunit=False, xunit_filename=None):
         """ lettuce.Runner will try to find a terrain.py file and
         import it from within `base_path`
         """
+        self.init_completed = False
 
-        self.initError = None
-
-        if not os.path.isdir(base_path) or not os.path.exists(base_path):
-            print "\033[1;31mOops!\n\033[1;37mCould not find base path at \033[1;33m%s\033[0m"%( base_path )
-            self.initError = True
+        try:
+            base_path, single_feature_file = fs.BasePathLoader.find_base_path(base_path)
+            if single_feature_file:
+                feature_files = single_feature_file
+        except Exception, e:
+            print e
             return
 
         sys.path.insert(0, base_path)
@@ -87,11 +89,9 @@ class Runner(object):
 
         try:
             self.feature_files = self.loader.load_feature_files(feature_files)
-        except FeatureLoadingError, e:
+        except Exception, e:
             print e
-            self.initError = True
             return
-
         self.verbosity = verbosity
         self.scenarios = scenarios and map(int, scenarios.split(",")) or None
 
@@ -114,11 +114,15 @@ class Runner(object):
         reload(output)
 
         self.output = output
+        self.init_completed = True
 
     def run(self):
         """ Find and load step definitions, and them find and load
         features under `base_path` specified on constructor
         """
+        if not self.init_completed:
+            return
+
         started_at = datetime.now()
         try:
             self.loader.find_and_load_step_definitions()

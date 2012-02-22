@@ -24,7 +24,21 @@ import zipfile
 
 from glob import glob
 from os.path import abspath, join, dirname, curdir, exists
-from lettuce.exceptions import StepLoadingError, FeatureLoadingError
+from lettuce.exceptions import BasePathNotFoundError, StepLoadingError, FeatureLoadingError
+
+class BasePathLoader:
+    """Loader class responsible for finding the base_path"""
+
+    @staticmethod
+    def find_base_path(base_path):
+        feature_file = None
+        if not os.path.isdir(base_path):
+            if os.path.isfile(base_path) and os.path.exists(base_path): # backwards compatibility of the single feature files
+                feature_file = base_path
+                base_path = os.path.dirname(base_path)
+            else:
+                raise BasePathNotFoundError(base_path)
+        return base_path, feature_file
 
 class FeatureLoader(object):
     """Loader class responsible for findind features and step
@@ -54,13 +68,16 @@ class FeatureLoader(object):
     def load_feature_files(self, paths):
         feature_files = []
         if paths:
-            for f in paths:
-                if os.path.isfile(f) and os.path.exists(f):
-                    feature_files.append(f)
-                elif os.path.isdir(f) and os.path.exists(f):
-                    feature_files.extend(self.find_feature_files(f))
-                else:
-                    raise FeatureLoadingError( f )
+            if os.path.isfile(unicode(paths)):
+                feature_files.append(paths)
+            else:
+                for f in paths:
+                    if os.path.isfile(f) and os.path.exists(f):
+                        feature_files.append(f)
+                    elif os.path.isdir(f) and os.path.exists(f):
+                        feature_files.extend(self.find_feature_files(f))
+                    else:
+                        raise FeatureLoadingError( f )
         return feature_files
 
     def find_feature_files(self, path=None):
@@ -68,7 +85,6 @@ class FeatureLoader(object):
             path = self.base_dir
         paths = FileSystem.locate(path, "*.feature")
         return paths
-
 
 class FileSystem(object):
     """File system abstraction, mainly used for indirection, so that
@@ -204,7 +220,7 @@ class FileSystem(object):
                     return_files.append(cls.join(path, filename))
         else:
             return_files = glob(cls.join(root_path, match))
-        if sort:
+        if sort and return_files:
           return_files.sort( )
         return return_files
 
