@@ -66,19 +66,16 @@ def main(args=sys.argv[1:]):
         pass
 
     runner = lettuce.Runner(
-        feature_files,
         base_path=os.path.abspath(options.base_path),
+        feature_files=feature_files,
         scenarios=options.scenarios,
         verbosity=options.verbosity,
         enable_xunit=options.enable_xunit,
         xunit_filename=options.xunit_file,
     )
 
-    if not runner.initError:
-        result = runner.run()
-        if not result or result.steps != result.steps_passed:
-            raise SystemExit(1)
-    else:
+    result = runner.run()
+    if not result or result.steps != result.steps_passed:
         raise SystemExit(1)
 
 if __name__ == '__main__':
