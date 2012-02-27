@@ -55,6 +55,12 @@ def main(args=sys.argv[1:]):
                       help='Write JUnit XML to this file. Defaults to '
                       'lettucetests.xml')
 
+    parser.add_option("-a", "--abort-fail",
+                      dest="abort_fail",
+                      action="store_true",
+                      default=False,
+                      help='If one feature file fails this option will stop executing all the rest')
+
     options, args = parser.parse_args()
     feature_files = None
     if args:
@@ -72,6 +78,7 @@ def main(args=sys.argv[1:]):
         verbosity=options.verbosity,
         enable_xunit=options.enable_xunit,
         xunit_filename=options.xunit_file,
+        abort_fail=options.abort_fail
     )
 
     result = runner.run()
