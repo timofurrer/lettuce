@@ -84,7 +84,6 @@ class FeatureLoader(object):
         if not path:
             path = self.base_dir
         paths = FileSystem.locate(path, "*.feature")
-        return paths
 
 class FileSystem(object):
     """File system abstraction, mainly used for indirection, so that

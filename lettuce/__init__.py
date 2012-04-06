@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-version = '0.1.34'
+version = '0.1.35'
 release = 'barium'
 
 import os
 import sys
+import traceback
 from datetime import datetime
 
 from lettuce import fs
