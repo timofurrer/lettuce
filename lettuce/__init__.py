@@ -147,9 +147,9 @@ class Runner(object):
             for filename in self.feature_files:
                 feature = Feature.from_file(filename)
                 result = feature.run(self.scenarios)
+                results.append( result )
                 if self.abort_fail and not result.passed:
                     break
-                results.append( result )
 
         except exceptions.LettuceSyntaxError, e:
             sys.stderr.write(e.msg)
