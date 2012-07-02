@@ -90,12 +90,6 @@ class Runner(object):
             print e
             return
 
-        self.tags = tags
-        self.single_feature = None
-
-        if os.path.isfile(base_path) and os.path.exists(base_path):
-            self.single_feature = base_path
-            base_path = os.path.dirname(base_path)
 
         sys.path.insert(0, base_path)
         self.loader = fs.FeatureLoader(base_path)
@@ -108,6 +102,7 @@ class Runner(object):
         self.verbosity  = verbosity
         self.scenarios  = scenarios and map(int, scenarios.split(",")) or None
         self.abort_fail = abort_fail
+        self.tags       = tags
 
         sys.path.remove(base_path)
 
@@ -135,7 +130,7 @@ class Runner(object):
         features under `base_path` specified on constructor
         """
         if not self.init_completed:
-            return
+          return
 
         started_at = datetime.now()
         try:
@@ -160,9 +155,9 @@ class Runner(object):
             for filename in self.feature_files:
                 feature = Feature.from_file(filename)
                 result = feature.run(self.scenarios, tags=self.tags)
+                results.append( result )
                 if self.abort_fail and not result.passed:
                     break
-                results.append( result )
 
         except exceptions.LettuceSyntaxError, e:
             sys.stderr.write(e.msg)

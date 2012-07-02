@@ -83,7 +83,7 @@ class FeatureLoader(object):
     def find_feature_files(self, path=None):
         if not path:
             path = self.base_dir
-        paths = FileSystem.locate(path, "*.feature")
+        return FileSystem.locate(path, "*.feature")
 
 class FileSystem(object):
     """File system abstraction, mainly used for indirection, so that

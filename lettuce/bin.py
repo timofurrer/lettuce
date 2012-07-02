@@ -87,12 +87,12 @@ def main(args=sys.argv[1:]):
         verbosity=options.verbosity,
         enable_xunit=options.enable_xunit,
         xunit_filename=options.xunit_file,
-        abort_fail=options.abort_fail
-        tags=options.tags,
+        abort_fail=options.abort_fail,
+        tags=options.tags
     )
 
     result = runner.run()
-    failed = bool(result or result.steps != result.steps_passed)
+    failed = bool(not result or result.steps != result.steps_passed)
     raise SystemExit(int(failed))
 
 if __name__ == '__main__':
