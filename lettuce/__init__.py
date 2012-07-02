@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # <Lettuce - Behaviour Driven Development for python>
-# Copyright (C) <2010-2011>  Gabriel Falcão <gabriel@nacaolivre.org>
+# Copyright (C) <2010-2012>  Gabriel Falcão <gabriel@nacaolivre.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-version = '0.1.35'
-release = 'barium'
+version = '0.2.5'
+release = 'kryptonite'
 
 import os
 import sys
 import traceback
 from datetime import datetime
-
-from lettuce import fs
 
 from lettuce.core import Feature, TotalResult
 
@@ -37,8 +35,15 @@ from lettuce.registry import STEP_REGISTRY
 from lettuce.registry import CALLBACK_REGISTRY
 from lettuce.exceptions import StepLoadingError, FeatureLoadingError
 from lettuce.plugins import xunit_output
-
+from lettuce import fs
 from lettuce import exceptions
+
+try:
+    from colorama import init as ms_windows_workaround
+    ms_windows_workaround()
+except ImportError:
+    pass
+
 
 __all__ = [
     'after',
@@ -71,7 +76,7 @@ class Runner(object):
     features and step definitions on there.
     """
     def __init__(self, base_path=None, feature_files=None, scenarios=None, verbosity=0,
-                 enable_xunit=False, xunit_filename=None, abort_fail=False):
+                 enable_xunit=False, xunit_filename=None, abort_fail=False, tags=None):
         """ lettuce.Runner will try to find a terrain.py file and
         import it from within `base_path`
         """
@@ -84,6 +89,13 @@ class Runner(object):
         except Exception, e:
             print e
             return
+
+        self.tags = tags
+        self.single_feature = None
+
+        if os.path.isfile(base_path) and os.path.exists(base_path):
+            self.single_feature = base_path
+            base_path = os.path.dirname(base_path)
 
         sys.path.insert(0, base_path)
         self.loader = fs.FeatureLoader(base_path)
@@ -147,7 +159,7 @@ class Runner(object):
         try:
             for filename in self.feature_files:
                 feature = Feature.from_file(filename)
-                result = feature.run(self.scenarios)
+                result = feature.run(self.scenarios, tags=self.tags)
                 if self.abort_fail and not result.passed:
                     break
                 results.append( result )

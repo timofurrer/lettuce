@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # <Lettuce - Behaviour Driven Development for python>
-# Copyright (C) <2010-2011>  Gabriel Falcão <gabriel@nacaolivre.org>
+# Copyright (C) <2010-2012>  Gabriel Falcão <gabriel@nacaolivre.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,6 +99,7 @@ class ThreadedServer(multiprocessing.Process):
     Runs django's builtin in background
     """
     lock = multiprocessing.Lock()
+    daemon = True
 
     def __init__(self, address, port, *args, **kw):
         multiprocessing.Process.__init__(self)
@@ -107,8 +108,8 @@ class ThreadedServer(multiprocessing.Process):
 
     @staticmethod
     def get_real_address(address):
-        if address == '0.0.0.0':
-            address = 'localhost'
+        if address == '0.0.0.0' or address == 'localhost':
+            address = '127.0.0.1'
 
         return address
 
@@ -117,7 +118,7 @@ class ThreadedServer(multiprocessing.Process):
 
         while True:
             time.sleep(0.1)
-            http = httplib.HTTPConnection(address, self.port)
+            http = httplib.HTTPConnection(address, self.port, timeout=1)
             try:
                 http.request("GET", "/")
             except socket.error:
@@ -161,11 +162,13 @@ class ThreadedServer(multiprocessing.Process):
 
         try:
             s = connector.connect((self.address, self.port))
-            print s
             self.lock.release()
             os.kill(os.getpid(), 9)
         except socket.error:
             pass
+
+        finally:
+            self.lock.release()
 
         try:
             server_address = (self.address, self.port)
