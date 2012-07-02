@@ -83,7 +83,7 @@ class Runner(object):
         self.init_completed = False
 
         try:
-            base_path, single_feature_file = fs.BasePathLoader.find_base_path(base_path)
+            base_path, single_feature_file = fs.find_base_path(base_path)
             if single_feature_file:
                 feature_files = single_feature_file
         except Exception, e:

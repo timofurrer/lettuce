@@ -26,19 +26,15 @@ from glob import glob
 from os.path import abspath, join, dirname, curdir, exists
 from lettuce.exceptions import BasePathNotFoundError, StepLoadingError, FeatureLoadingError
 
-class BasePathLoader:
-    """Loader class responsible for finding the base_path"""
-
-    @staticmethod
-    def find_base_path(base_path):
-        feature_file = None
-        if not os.path.isdir(base_path):
-            if os.path.isfile(base_path) and os.path.exists(base_path): # backwards compatibility of the single feature files
-                feature_file = base_path
-                base_path = os.path.dirname(base_path)
-            else:
-                raise BasePathNotFoundError(base_path)
-        return base_path, feature_file
+def find_base_path(base_path):
+    feature_file = None
+    if not os.path.isdir(base_path):
+        if os.path.isfile(base_path) and os.path.exists(base_path): # backwards compatibility of the single feature files
+            feature_file = base_path
+            base_path    = os.path.dirname(base_path)
+        else:
+            raise BasePathNotFoundError(base_path)
+    return base_path, feature_file
 
 class FeatureLoader(object):
     """Loader class responsible for findind features and step
