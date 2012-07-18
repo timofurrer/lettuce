@@ -92,7 +92,8 @@ class Runner(object):
 
 
         sys.path.insert(0, base_path)
-        self.loader = fs.FeatureLoader(base_path)
+        fs.FeatureLoader.base_dir = fs.FileSystem.abspath(base_path)
+        self.loader = fs.FeatureLoader()
 
         try:
             self.feature_files = self.loader.load_feature_files(feature_files)

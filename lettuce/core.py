@@ -23,7 +23,7 @@ from itertools import chain
 from copy import deepcopy
 from lettuce import strings
 from lettuce import languages
-from lettuce.fs import FileSystem
+from lettuce.fs import FileSystem, FeatureLoader
 from lettuce.registry import STEP_REGISTRY
 from lettuce.registry import call_hook
 from lettuce.exceptions import ReasonToFail
@@ -111,7 +111,10 @@ class StepDefinition(object):
     gets a few metadata from file, such as filename and line number"""
     def __init__(self, step, function):
         self.function = function
-        self.file = fs.relpath(function.func_code.co_filename)
+        filename = fs.relpath(function.func_code.co_filename).replace( FeatureLoader.base_dir[1:], '')
+        if filename.startswith('/'):
+            filename = filename[1:]
+        self.file = filename
         self.line = function.func_code.co_firstlineno + 1
         self.step = step
 
