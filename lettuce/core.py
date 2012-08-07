@@ -298,7 +298,9 @@ class Step(object):
             where = self.defined_at
         if FeatureLoader.show_filenames:
           return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'# %s:%d\n' % (where.file, where.line))
-        return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'\n')
+
+        head = strings.split_string_with_lines(head, ' ' * (self.indentation + 8))
+        return strings.rfill(head[0], self.scenario.feature.max_length + 1, append=u'\n'), head[1]
 
     def represent_hashes(self):
         lines = strings.dicts_to_string(self.hashes, self.keys).splitlines()

@@ -63,7 +63,7 @@ def print_step_running(step):
     if step.scenario.outlines:
         color = '\033[0;36m'
 
-    string = step.represent_string(step.original_sentence)
+    string = step.represent_string(step.original_sentence)[0]
     string = wrap_file_and_line(string, '\033[1;30m', '\033[0m')
     write_out("%s%s" % (color, string))
     if step.hashes and step.defined_at:
@@ -79,20 +79,18 @@ def print_step_ran(step):
     if step.hashes and step.defined_at:
         write_out("\033[A" * (len(step.hashes) + 1))
 
-    string = step.represent_string(step.original_sentence)
+    rep = step.represent_string(step.original_sentence)
+    string = rep[0]
 
     if not step.failed:
         string = wrap_file_and_line(string, '\033[1;30m', '\033[0m')
 
     prefix = '\033[A'
-    width, height = terminal.get_size()
-    lines_up = len(string) / float(width)
+    lines_up = rep[1]
     if lines_up < 1:
         lines_up = 1
-    else:
-        lines_up = int(lines_up) + 1
 
-    #prefix = prefix * lines_up
+    prefix = prefix * lines_up
 
     if step.failed:
         color = "\033[0;31m"

@@ -23,12 +23,13 @@ from lettuce.terrain import before
 
 @before.each_step
 def print_step_running(step):
-    logging.info(step.represent_string(step.sentence))
+    logging.info(step.represent_string(step.sentence)[0])
 
 
 @after.each_step
 def print_step_ran(step):
-    logging.info("\033[A" + step.represent_string(step.sentence))
+    rep = step.represent_string(step.sentence)
+    logging.info("\033[A" * rep[1] + rep[0])
 
 
 @before.each_scenario

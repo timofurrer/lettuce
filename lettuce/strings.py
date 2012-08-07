@@ -90,6 +90,42 @@ def rfill(string, times, char=u" ", append=u""):
 
     return unicode(string) + unicode(append)
 
+def split_string_with_lines(string, indentation = "", chars_per_line = 100):
+    # expert splitting mode
+    matches = re.split(''',(?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', string)
+    splitted = []
+    for s in matches:
+      splitted.append( s + ("," if s != matches[-1] else ""))
+
+    res = []
+    buf = ""
+    for s in splitted:
+      if len(s) > chars_per_line:
+        splitted2 = re.split(''' (?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', s)
+        for s2 in splitted2:
+          ext = s2
+          if s2 == splitted2[-2]:
+            if len(splitted2[-1]) <= 5:
+              ext += " " + splitted2[-1]
+
+          buf += ext + (" " if s2 != splitted2[-1] and ext == s2 else "")
+
+          if len(buf) >= chars_per_line or s2 == splitted2[-1]:
+            res.append(buf)
+            buf = ""
+            if ext != s2:
+              break
+      else:
+        buf += s
+
+        if len(buf) >= chars_per_line or s == splitted[-1]:
+          res.append(buf)
+          buf = ""
+    return ("\n%s"%indentation).join( res ), len( res )
+
+    # basic splitting mode
+    #splitted = [string[i:i+chars_per_line] for i in range(0, len(string), chars_per_line)]
+    #return ("\n%s"%indentation).join( splitted ), len( splitted )
 
 def getlen(string):
     return column_width(unicode(string)) + 1
