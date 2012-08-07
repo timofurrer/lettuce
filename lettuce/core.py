@@ -287,7 +287,9 @@ class Step(object):
             if value_size > max_length:
                 max_length = value_size
 
-        return max_length
+        if max_length <= 60:
+            return max_length
+        return 60
 
     def represent_string(self, string):
         head = ' ' * self.indentation + string
