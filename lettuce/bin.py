@@ -34,7 +34,7 @@ def main(args=sys.argv[1:]):
 
     parser.add_option("-v", "--verbosity",
                       dest="verbosity",
-                      default=4,
+                      default=5,
                       help='The verbosity level')
 
     parser.add_option("-s", "--scenarios",

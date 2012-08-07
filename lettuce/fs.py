@@ -39,7 +39,8 @@ def find_base_path(base_path):
 class FeatureLoader(object):
     """Loader class responsible for findind features and step
     definitions along a given path on filesystem"""
-    base_dir = None
+    base_dir       = None
+    show_filenames = True
 
     def __init__(self):
       pass

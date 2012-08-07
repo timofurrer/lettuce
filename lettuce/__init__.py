@@ -115,6 +115,9 @@ class Runner(object):
             from lettuce.plugins import scenario_names as output
         elif verbosity is 3:
             from lettuce.plugins import shell_output as output
+        elif verbosity is 4:
+            from lettuce.plugins import colored_shell_output as output
+            fs.FeatureLoader.show_filenames = False
         else:
             from lettuce.plugins import colored_shell_output as output
 

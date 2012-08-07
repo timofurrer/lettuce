@@ -294,7 +294,9 @@ class Step(object):
         where = self.described_at
         if self.defined_at:
             where = self.defined_at
-        return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'# %s:%d\n' % (where.file, where.line))
+        if FeatureLoader.show_filenames:
+          return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'# %s:%d\n' % (where.file, where.line))
+        return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'\n')
 
     def represent_hashes(self):
         lines = strings.dicts_to_string(self.hashes, self.keys).splitlines()
@@ -764,8 +766,8 @@ class Scenario(object):
         head_parts.append(prefix + self.name)
 
         head = ''.join(head_parts)
-        appendix = ''
-        if self.described_at:
+        appendix = '\n'
+        if FeatureLoader.show_filenames and self.described_at:
             fmt = (self.described_at.file, self.described_at.line)
             appendix = u'# %s:%d\n' % fmt
 
@@ -884,7 +886,10 @@ class Feature(object):
         line = self.described_at.line
         head = strings.rfill(self.get_head(), length, append=u"# %s:%d\n" % (filename, line))
         for description, line in zip(self.description.splitlines(), self.described_at.description_at):
-            head += strings.rfill(u"  %s" % description, length, append=u"# %s:%d\n" % (filename, line))
+            if FeatureLoader.show_filenames:
+              head += strings.rfill(u"  %s" % description, length, append=u"# %s:%d\n" % (filename, line))
+            else:
+              head += strings.rfill(u"  %s" % description, length, append=u"\n")
 
         return head
 
