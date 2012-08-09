@@ -296,10 +296,10 @@ class Step(object):
         where = self.described_at
         if self.defined_at:
             where = self.defined_at
-        if FeatureLoader.show_filenames:
-          return strings.rfill(head, self.scenario.feature.max_length + 1, append=u'# %s:%d\n' % (where.file, where.line))
 
         head = strings.split_string_with_lines(head, ' ' * (self.indentation + 8))
+        if FeatureLoader.show_filenames:
+          return strings.rfill(head[0], self.scenario.feature.max_length + 1, append=u'# %s:%d\n' % (where.file, where.line)), head[1]
         return strings.rfill(head[0], self.scenario.feature.max_length + 1, append=u'\n'), head[1]
 
     def represent_hashes(self):
