@@ -143,6 +143,15 @@ class StepDescription(object):
 
         self.line = line
 
+        scenario_line = 1
+        f = open( self.file )
+        for l in f.readlines( ):
+            if re.search( "Scenario:", l ) is not None: break
+            scenario_line += 1
+        f.close( )
+
+        self.idx =  self.line - scenario_line
+
 
 class ScenarioDescription(object):
     """A simple object that holds filename and line number of a scenario
@@ -292,8 +301,12 @@ class Step(object):
         return 60
 
     def represent_string(self, string):
-        head = ' ' * self.indentation + string
         where = self.described_at
+        if FeatureLoader.step_number:
+          head = ' ' * self.indentation + '%3d'%where.idx + '. ' + string
+        else:
+          head = ' ' * self.indentation + string
+
         if self.defined_at:
             where = self.defined_at
 

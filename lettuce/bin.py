@@ -70,6 +70,12 @@ def main(args=sys.argv[1:]):
                       default=False,
                       help='If one feature file fails this option will stop executing all the rest')
 
+    parser.add_option("-n", "--step-number",
+                      dest="step_number",
+                      action="store_true",
+                      default=False,
+                      help='Show the step number in front of the step sentence')
+
     options, args = parser.parse_args()
     feature_files = None
     if args:
@@ -88,6 +94,7 @@ def main(args=sys.argv[1:]):
         enable_xunit=options.enable_xunit,
         xunit_filename=options.xunit_file,
         abort_fail=options.abort_fail,
+        step_number=options.step_number,
         tags=options.tags
     )
 

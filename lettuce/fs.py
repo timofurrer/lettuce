@@ -41,6 +41,7 @@ class FeatureLoader(object):
     definitions along a given path on filesystem"""
     base_dir       = None
     show_filenames = True
+    step_number    = False
 
     def __init__(self):
       pass
