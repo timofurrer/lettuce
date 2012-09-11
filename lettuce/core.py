@@ -302,6 +302,7 @@ class Step(object):
 
     def represent_string(self, string):
         where = self.described_at
+
         if FeatureLoader.step_number:
           head = ' ' * self.indentation + '%3d'%where.idx + '. ' + string
         else:
@@ -494,16 +495,27 @@ class Step(object):
         mkargs = lambda s: [s, filename, original_string]
         return [klass.from_string(*mkargs(s)) for s in step_strings]
 
+    occurances = {}
+
     @classmethod
     def from_string(cls, string, with_file=None, original_string=None):
         """Creates a new step from string"""
         lines = strings.get_stripped_lines(string)
         sentence = lines.pop(0)
 
+        occ  = 0
         line = None
         if with_file and original_string:
             for pline, line in enumerate(original_string.splitlines()):
                 if sentence in line:
+                    occ += 1
+                    if cls.occurances.__contains__( sentence ) and cls.occurances[sentence] >= occ:
+                      continue
+
+                    if cls.occurances.__contains__( sentence ):
+                        cls.occurances[sentence] += 1
+                    else:
+                        cls.occurances[sentence] = 1
                     line = pline + 1
                     break
 
