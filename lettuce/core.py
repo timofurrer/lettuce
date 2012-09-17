@@ -504,10 +504,10 @@ class Step(object):
         sentence = lines.pop(0)
 
         occ  = 0
-        line = None
+        line = 0
         if with_file and original_string:
-            for pline, line in enumerate(original_string.splitlines()):
-                if sentence in line:
+            for pline, l in enumerate(original_string.splitlines()):
+                if sentence in l:
                     occ += 1
                     if cls.occurances.__contains__( sentence ) and cls.occurances[sentence] >= occ:
                       continue
