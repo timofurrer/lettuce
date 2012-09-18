@@ -774,6 +774,7 @@ class Scenario(object):
                 with_file,
                 invalid_first_line_error % self.name)
 
+        Step.occurances = {}
         return Step.many_from_lines(lines, with_file, original_string)
 
     def _set_definition(self, definition):
